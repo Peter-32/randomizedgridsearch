@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+from sklearn.metrics import mean_squared_error
 
 def RandomizedGridSearch(n_experiments,
                            pipe,
@@ -27,50 +29,49 @@ def RandomizedGridSearch(n_experiments,
 
     # Transform the param_distributions into four arrays
     key_list, transform_class_list = [], []
-    parameter_name_list, features_list = [], []
-    for key, features in param_distributions.items():
+    parameter_name_list, feature_is_included_list_list = [], []
+    for key, feature_is_included_list in param_distributions.items():
         class_key, parameter_name = key.split("__")
         transform_class = pipe.named_steps[class_key]
         key_list.append(key)
         transform_class_list.append(transform_class)
         parameter_name_list.append(parameter_name)
-        features_list.append(features)
+        feature_is_included_list_list.append(feature_is_included_list)
 
     # Initialize experiments dictionary
     experiments_info = {}
-    for key, transform_class, parameter_name, features in \
+    for key, transform_class, parameter_name, feature_is_included_list in \
         zip(key_list, transform_class_list, parameter_name_list,
-            features_list):
-        for i in range(len(features)):
+            feature_is_included_list_list):
+        for i in range(len(feature_is_included_list)):
             experiments_info[key + "___" + str(i)] = []
     experiments_info['score'] = []
 
     # Iterate over the experiments
-    for iteration in range(n_experiments):
-        print("Iteration: ", iteration)
+    for iteration in tqdm(range(n_experiments)):
 
         # Updates the transform parameters
-        for key, transform_class, parameter_name, features in \
+        for key, transform_class, parameter_name, feature_is_included_list in \
             zip(key_list, transform_class_list, parameter_name_list,
-                features_list):
+                feature_is_included_list_list):
 
-            # Copy features
-            features = features.copy()
+            # Copy feature_is_included_list
+            feature_is_included_list = feature_is_included_list.copy()
 
-            # Loop over features
-            for feature_i in range(len(features)):
+            # Loop over feature_is_included_list
+            for feature_i in range(len(feature_is_included_list)):
 
-                # Replace features
-                features[feature_i] = np.random.choice([
+                # Replace feature_is_included_list
+                feature_is_included_list[feature_i] = np.random.choice([
                     True, False
-                ]) if features[feature_i] == None else features[feature_i]
+                ]) if feature_is_included_list[feature_i] == None else feature_is_included_list[feature_i]
 
                 # Save input data for the experiments dataframe output
                 experiments_info[key + "___" +
-                                 str(feature_i)].append(features[feature_i])
+                                 str(feature_i)].append(feature_is_included_list[feature_i])
 
             # Set parameters for the transformation class (typically numeric fields)
-            setattr(transform_class, "features", features)
+            setattr(transform_class, "feature_is_included_list", feature_is_included_list)
 
         # Fit
         pipe.fit(train_X, train_y)
@@ -87,5 +88,5 @@ def RandomizedGridSearch(n_experiments,
         # Appending the score
         experiments_info["score"].append(score)
 
-    experiments_df = pd.DataFrame(experiments_info)
-    return experiments_df
+    experiments_results = pd.DataFrame(experiments_info)
+    return experiments_results
