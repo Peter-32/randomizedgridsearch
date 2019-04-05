@@ -27,30 +27,25 @@ def RandomizedGridSearch(n_experiments,
     train_X, train_y = train_X.copy(), train_y.copy()
     test_X, test_y = test_X.copy(), test_y.copy()
 
-    # Transform the param_distributions into three arrays
-    key_list, transform_class_list = [], []
-    feature_is_included_list_list = []
+    # Get transform_class_list
+    transform_class_list = []
     for class_key, feature_is_included_list in param_distributions.items():
-        transform_class = pipe.named_steps[class_key]
-        key_list.append(key)
-        transform_class_list.append(transform_class)
-        feature_is_included_list_list.append(feature_is_included_list)
+        transform_class_list.append(pipe.named_steps[class_key])
 
     # Initialize experiments dictionary
     experiments_info = {}
-    for key, transform_class, feature_is_included_list in \
-        zip(key_list, transform_class_list,
-            feature_is_included_list_list):
+    for class_key, feature_is_included_list, transform_class in \
+        zip(param_distributions.items(), transform_class_list):
         for i in range(len(feature_is_included_list)):
-            experiments_info[key + "___" + str(i)] = []
+            experiments_info[class_key + "___" + str(i)] = []
     experiments_info['score'] = []
 
     # Iterate over the experiments
     for iteration in tqdm(range(n_experiments)):
 
         # Updates the transform parameters
-        for key, transform_class, feature_is_included_list in \
-            zip(key_list, transform_class_list, feature_is_included_list_list):
+        for class_key, feature_is_included_list, transform_class in \
+            zip(param_distributions.items(), transform_class_list):
 
             # Copy feature_is_included_list
             feature_is_included_list = feature_is_included_list.copy()
@@ -64,7 +59,7 @@ def RandomizedGridSearch(n_experiments,
                 ]) if feature_is_included_list[feature_i] == None else feature_is_included_list[feature_i]
 
                 # Save input data for the experiments dataframe output
-                experiments_info[key + "___" +
+                experiments_info[class_key + "___" +
                                  str(feature_i)].append(feature_is_included_list[feature_i])
 
             # Set parameters for the transformation class (typically numeric fields)
