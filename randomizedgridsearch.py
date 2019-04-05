@@ -40,7 +40,7 @@ def RandomizedGridSearch(n_experiments,
     for class_key, feature_is_included_list, transform_class in \
         zip(class_key_list, feature_is_included_list_list, transform_class_list):
         for i in range(len(feature_is_included_list)):
-            experiments_info[class_key + "___" + str(i)] = []
+            experiments_info[class_key + "__" + str(i)] = []
     experiments_info['score'] = []
 
     # Iterate over the experiments
@@ -62,7 +62,7 @@ def RandomizedGridSearch(n_experiments,
                 ]) if feature_is_included_list[feature_i] == None else feature_is_included_list[feature_i]
 
                 # Save input data for the experiments dataframe output
-                experiments_info[class_key + "___" +
+                experiments_info[class_key + "__" +
                                  str(feature_i)].append(feature_is_included_list[feature_i])
 
             # Set parameters for the transformation class (typically numeric fields)
@@ -83,5 +83,5 @@ def RandomizedGridSearch(n_experiments,
         # Appending the score
         experiments_info["score"].append(score)
 
-    experiments_results = pd.DataFrame(experiments_info)
-    return experiments_results
+    # Return pandas experiments_results
+    return pd.DataFrame(experiments_info).sort_values(by=['score'], ascending=False, inplace=False)
