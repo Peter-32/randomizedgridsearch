@@ -27,15 +27,18 @@ def RandomizedGridSearch(n_experiments,
     train_X, train_y = train_X.copy(), train_y.copy()
     test_X, test_y = test_X.copy(), test_y.copy()
 
-    # Get transform_class_list
+    # Get three arrays
+    class_key_list, feature_is_included_list_list = [], []
     transform_class_list = []
     for class_key, feature_is_included_list in param_distributions.items():
+        class_key_list.append(class_key)
+        feature_is_included_list_list.append(feature_is_included_list)
         transform_class_list.append(pipe.named_steps[class_key])
 
     # Initialize experiments dictionary
     experiments_info = {}
     for class_key, feature_is_included_list, transform_class in \
-        zip(param_distributions.items(), transform_class_list):
+        zip(class_key_list, feature_is_included_list_list, transform_class_list):
         for i in range(len(feature_is_included_list)):
             experiments_info[class_key + "___" + str(i)] = []
     experiments_info['score'] = []
@@ -45,7 +48,7 @@ def RandomizedGridSearch(n_experiments,
 
         # Updates the transform parameters
         for class_key, feature_is_included_list, transform_class in \
-            zip(param_distributions.items(), transform_class_list):
+            zip(class_key_list, feature_is_included_list_list, transform_class_list):
 
             # Copy feature_is_included_list
             feature_is_included_list = feature_is_included_list.copy()
