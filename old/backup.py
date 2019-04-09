@@ -27,44 +27,13 @@ def RandomizedGridSearch(n_experiments,
     train_X, train_y = train_X.copy(), train_y.copy()
     test_X, test_y = test_X.copy(), test_y.copy()
 
-
-    # Initialize scaler options
-    default_values = [None]*num_features
-    options = {
-    'scaler': {
-    'standard_scaler': default_values,
-    'min_max_scaler': default_values,
-    'binarizer': default_values,
-    'k_bins_discretizer': default_values,
-    'k_bins_discretizer2': default_values,
-    'k_bins_discretizer3': default_values,
-    }
-    }
-
-    # i.e. Scaler and a type of scaler
-    for transform_category, transform_selections in param_distributions.items():
-        # i.e. Feature's index position & a type of scaler
-        for index, transform_selection in zip(range(transform_selections), transform_selections):
-            # If the selection has been chosen
-            if transform_selection != None:
-                # Set all selections to False
-                for transform_selection_possibilities in options[transform_category].keys():
-                    options[transform_category][transform_selection_possibilities][index] = False
-                # Now, set the chosen selection to True
-                options[transform_category][transform_selection][index] = True
-
-
-
-
-
-    # # Get three arrays
-    # transform_type_list, class_key_list = [], []
-    # transform_class_list = []
-    # for transform_type, class_keys in param_distributions.items():
-    #     for index, class_key in zip(range(class_keys), class_keys):
-    #         transform_type_list.append(transform_type)
-    #         class_key_dict[index] = class_key
-    #         transform_class_list.append(pipe.named_steps[class_key])
+    # Get three arrays
+    class_key_list, feature_is_included_list_list = [], []
+    transform_class_list = []
+    for class_key, feature_is_included_list in param_distributions.items():
+        class_key_list.append(class_key)
+        feature_is_included_list_list.append(feature_is_included_list)
+        transform_class_list.append(pipe.named_steps[class_key])
 
     # Initialize experiments dictionary
     experiments_info = {}
