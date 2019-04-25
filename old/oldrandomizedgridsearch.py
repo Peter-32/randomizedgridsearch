@@ -29,13 +29,27 @@ def RandomizedGridSearch(n_experiments,
 
 
     # num_features
-    num_features = len(param_distributions['standard_scaler'])
+    num_features = len(param_distributions['scaler'])
+
+    # Initialize scaler options
+    default_values = [None]*num_features
+    options = {
+    'scaler': {
+        'standard_scaler': default_values.copy(),
+        'min_max_scaler': default_values.copy(),
+        'binarizer': default_values.copy(),
+#        'k_bins_discretizer': default_values.copy(),
+#        'k_bins_discretizer2': default_values.copy(),
+#        'k_bins_discretizer3': default_values.copy(),
+        }
+    }
 
     # initialize experiments_info
     experiments_info = {}
-    for transform in param_distributions.keys():
-        for i in range(num_features):
-            experiments_info[transform + "__" + str(i)] = []
+    for transform_category in param_distributions.keys():
+        for transform_selection_possibility in options[transform_category].keys():
+            for i in range(num_features):
+                experiments_info[transform_category + "__" + transform_selection_possibility + "__" + str(i)] = []
     experiments_info['score'] = []
 
     # Iterate over the experiments
