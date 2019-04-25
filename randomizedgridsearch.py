@@ -41,11 +41,13 @@ def RandomizedGridSearch(n_experiments,
     # Iterate over the experiments
     for iteration in tqdm(range(n_experiments)):
 
-        # i.e. Scaler and a type of scaler
-        for transform_category, transform_selections in param_distributions.items():
+        for transform, priors in param_distributions.items():
 
-            # i.e. Feature's index position & a type of scaler
-            for index, transform_selection in zip(range(len(transform_selections)), transform_selections):
+            for index in range(num_features):
+
+                probability_of_true = priors[index]
+                if np.random.uniform() < probability_of_true:
+                    True
 
                 # Random choice
                 if transform_selection == None:
